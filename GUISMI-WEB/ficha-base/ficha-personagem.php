@@ -10,6 +10,7 @@
 <?php
 	session_start(); 
 	$_SESSION["idFichaAtual"] = @$_REQUEST['idFicha'];
+	$idFichaAtual = $_SESSION["idFichaAtual"];
 ?>
     <label>nome:</label>
     <label ondblclick="modalTextBox(this)" id="nome_pers"></label>
@@ -163,7 +164,7 @@
 			</tr>
         </tbody>
     </table>
-    <table name="">
+    <table name="habitos-ficha-personagem">
         <caption>Hábitos</caption>
         <thead>
             <tr>
@@ -176,16 +177,34 @@
                 <th>M5</th>
             </tr>
         </thead>
-        <tbody>
+		<tbody>
+<?php
+	$query = "SELECT habitos.nome,habitos.desc_hab,ficha_has_habitos.qtd_fic_hab,caminho_has_habitos.qtd_cam_hab,descendencia_has_habitos.qtd_desc_hab,raca_has_habitos.qtd_rac_hab FROM ficha
+LEFT JOIN ficha_has_caminho ON ficha_has_caminho.idFicha = ficha.idFicha
+LEFT JOIN descendencia_has_ficha ON descendencia_has_ficha.idFicha = ficha.idFicha
+LEFT JOIN habitos ON habitos.idHabitos IS NOT NULL
+LEFT JOIN ficha_has_habitos ON ficha_has_habitos.idFicha = ficha.idFicha AND  ficha_has_habitos.idHabitos = habitos.idHabitos
+LEFT JOIN raca_has_habitos ON raca_has_habitos.idRaca = ficha.idRaca AND raca_has_habitos.idHabitos = habitos.idHabitos
+LEFT JOIN caminho_has_habitos ON caminho_has_habitos.idCaminho = ficha_has_caminho.idCaminho AND caminho_has_habitos.idHabitos = habitos.idHabitos
+LEFT JOIN descendencia_has_habitos ON descendencia_has_habitos.idDescendencia = descendencia_has_ficha.idDescendencia AND descendencia_has_habitos.idHabitos = habitos.idHabitos
+where ficha.idFicha=$idFichaAtual";
+	$result = mysqli_query($con, $query);
+	
+	while($coluna=mysqli_fetch_array($result)){
+?>
+       
             <tr>
-                <th>XXXX</th>
-                <td>0</td>
+                <th><?php echo $coluna['nome']; ?></th>
+                <td><?php echo $coluna['qtd_fic_hab']+$coluna['qtd_cam_hab']+$coluna['qtd_desc_hab']+$coluna['qtd_rac_hab']; ?></td>
                 <td><label>0</label><input type="number" /></td>
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
             </tr>
+<?php
+	}
+?>
         </tbody>
     </table>
     <button>+</button>
